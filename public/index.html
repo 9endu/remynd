@@ -4,27 +4,249 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo with WhatsApp Reminders</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .task-form { display: flex; gap: 10px; margin-bottom: 20px; }
-        input, button { padding: 8px; }
-        #task-input { flex: 1; }
-        .task-list { list-style: none; padding: 0; }
-        .task-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
-        .task-item.completed { text-decoration: line-through; color: #888; }
-        .due-time { color: #666; font-size: 0.9em; }
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        h1 i {
+            color: var(--accent);
+        }
+        
+        .task-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input, button {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #add-task {
+            align-self: flex-end;
+            height: 47px;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-item.completed {
+            background-color: #f8f9fa;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-text {
+            font-weight: 500;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        
+        .due-time {
+            color: #666;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .complete-btn, .delete-btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .complete-btn {
+            background-color: var(--success);
+        }
+        
+        .complete-btn:hover {
+            background-color: #3aa8d8;
+        }
+        
+        .delete-btn {
+            background-color: var(--danger);
+        }
+        
+        .delete-btn:hover {
+            background-color: #e5177e;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 50px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .task-form {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            #add-task {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Todo with WhatsApp Reminders</h1>
-    
-    <div class="task-form">
-        <input type="text" id="task-input" placeholder="Enter your task">
-        <input type="datetime-local" id="due-time">
-        <button id="add-task">Add Task</button>
+    <div class="container">
+        <h1>
+            <i class="fas fa-tasks"></i>
+            Todo with WhatsApp Reminders
+        </h1>
+        
+        <div class="task-form">
+            <div class="form-group">
+                <label for="task-input">Task</label>
+                <input type="text" id="task-input" placeholder="What needs to be done?">
+            </div>
+            <div class="form-group">
+                <label for="due-time">Due Date & Time</label>
+                <input type="datetime-local" id="due-time">
+            </div>
+            <button id="add-task">
+                <i class="fas fa-plus"></i>
+                Add Task
+            </button>
+        </div>
+        
+        <ul class="task-list" id="task-list">
+            <!-- Tasks will be inserted here by JavaScript -->
+        </ul>
     </div>
-    
-    <ul class="task-list" id="task-list"></ul>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -33,43 +255,116 @@
             const addTaskBtn = document.getElementById('add-task');
             const taskList = document.getElementById('task-list');
             
+            // Set minimum datetime to current time
+            const now = new Date();
+            const timezoneOffset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - timezoneOffset)).toISOString().slice(0, 16);
+            dueTimeInput.min = localISOTime;
+            
             // Load tasks on page load
             fetchTodos();
             
-            // Add task
+            // Add task on button click or Enter key
             addTaskBtn.addEventListener('click', addTask);
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
             
             function fetchTodos() {
                 fetch('/todos')
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
                     .then(todos => {
+                        if (todos.length === 0) {
+                            taskList.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <h3>No tasks yet</h3>
+                                    <p>Add your first task to get started!</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
                         taskList.innerHTML = '';
                         todos.forEach(todo => {
-                            const li = document.createElement('li');
-                            li.className = `task-item ${todo.completed ? 'completed' : ''}`;
-                            li.innerHTML = `
-                                <div>
-                                    <span>${todo.task}</span>
-                                    <span class="due-time">${new Date(todo.due_time).toLocaleString()}</span>
-                                </div>
-                                ${todo.completed ? '' : '<button class="complete-btn" data-id="${todo.id}">Complete</button>'}
-                            `;
-                            taskList.appendChild(li);
+                            const taskItem = createTaskElement(todo);
+                            taskList.appendChild(taskItem);
                         });
-                        
-                        // Add event listeners to complete buttons
-                        document.querySelectorAll('.complete-btn').forEach(btn => {
-                            btn.addEventListener('click', completeTask);
-                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching todos:', error);
+                        taskList.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>Error loading tasks</h3>
+                                <p>Please try refreshing the page</p>
+                            </div>
+                        `;
                     });
+            }
+            
+            function createTaskElement(todo) {
+                const li = document.createElement('li');
+                li.className = `task-item ${todo.completed ? 'completed' : ''}`;
+                li.dataset.id = todo.id;
+                
+                li.innerHTML = `
+                    <div class="task-info">
+                        <div class="task-text ${todo.completed ? 'completed' : ''}">${todo.task}</div>
+                        <div class="due-time">
+                            <i class="far fa-clock"></i>
+                            ${formatDateTime(todo.due_time)}
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        ${todo.completed ? '' : `
+                            <button class="complete-btn" data-id="${todo.id}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        `}
+                        <button class="delete-btn" data-id="${todo.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listeners
+                if (!todo.completed) {
+                    li.querySelector('.complete-btn').addEventListener('click', completeTask);
+                }
+                li.querySelector('.delete-btn').addEventListener('click', deleteTask);
+                
+                return li;
+            }
+            
+            function formatDateTime(dateTimeString) {
+                const options = { 
+                    weekday: 'short', 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                };
+                return new Date(dateTimeString).toLocaleString(undefined, options);
             }
             
             function addTask() {
                 const task = taskInput.value.trim();
                 const dueTime = dueTimeInput.value;
                 
-                if (!task || !dueTime) {
-                    alert('Please enter both task and due time');
+                if (!task) {
+                    showAlert('Please enter a task description');
+                    taskInput.focus();
+                    return;
+                }
+                
+                if (!dueTime) {
+                    showAlert('Please select a due date and time');
+                    dueTimeInput.focus();
                     return;
                 }
                 
@@ -80,23 +375,59 @@
                     },
                     body: JSON.stringify({ task, due_time: dueTime }),
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to add task');
+                    return response.json();
+                })
                 .then(() => {
                     taskInput.value = '';
                     dueTimeInput.value = '';
+                    taskInput.focus();
                     fetchTodos();
+                })
+                .catch(error => {
+                    console.error('Error adding task:', error);
+                    showAlert('Failed to add task. Please try again.');
                 });
             }
             
             function completeTask(e) {
-                const id = e.target.getAttribute('data-id');
+                const id = e.currentTarget.dataset.id;
                 
                 fetch(`/todos/${id}/complete`, {
                     method: 'PUT',
                 })
-                .then(() => {
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to complete task');
                     fetchTodos();
+                })
+                .catch(error => {
+                    console.error('Error completing task:', error);
+                    showAlert('Failed to complete task. Please try again.');
                 });
+            }
+            
+            function deleteTask(e) {
+                const id = e.currentTarget.dataset.id;
+                
+                if (!confirm('Are you sure you want to delete this task?')) return;
+                
+                fetch(`/todos/${id}`, {
+                    method: 'DELETE',
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to delete task');
+                    fetchTodos();
+                })
+                .catch(error => {
+                    console.error('Error deleting task:', error);
+                    showAlert('Failed to delete task. Please try again.');
+                });
+            }
+            
+            function showAlert(message) {
+                // You could replace this with a nicer toast notification
+                alert(message);
             }
         });
     </script>

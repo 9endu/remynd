@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo with WhatsApp Reminders</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .task-form { display: flex; gap: 10px; margin-bottom: 20px; }
+        input, button { padding: 8px; }
+        #task-input { flex: 1; }
+        .task-list { list-style: none; padding: 0; }
+        .task-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .task-item.completed { text-decoration: line-through; color: #888; }
+        .due-time { color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>Todo with WhatsApp Reminders</h1>
+    
+    <div class="task-form">
+        <input type="text" id="task-input" placeholder="Enter your task">
+        <input type="datetime-local" id="due-time">
+        <button id="add-task">Add Task</button>
+    </div>
+    
+    <ul class="task-list" id="task-list"></ul>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskInput = document.getElementById('task-input');
+            const dueTimeInput = document.getElementById('due-time');
+            const addTaskBtn = document.getElementById('add-task');
+            const taskList = document.getElementById('task-list');
+            
+            // Load tasks on page load
+            fetchTodos();
+            
+            // Add task
+            addTaskBtn.addEventListener('click', addTask);
+            
+            function fetchTodos() {
+                fetch('/todos')
+                    .then(response => response.json())
+                    .then(todos => {
+                        taskList.innerHTML = '';
+                        todos.forEach(todo => {
+                            const li = document.createElement('li');
+                            li.className = `task-item ${todo.completed ? 'completed' : ''}`;
+                            li.innerHTML = `
+                                <div>
+                                    <span>${todo.task}</span>
+                                    <span class="due-time">${new Date(todo.due_time).toLocaleString()}</span>
+                                </div>
+                                ${todo.completed ? '' : '<button class="complete-btn" data-id="${todo.id}">Complete</button>'}
+                            `;
+                            taskList.appendChild(li);
+                        });
+                        
+                        // Add event listeners to complete buttons
+                        document.querySelectorAll('.complete-btn').forEach(btn => {
+                            btn.addEventListener('click', completeTask);
+                        });
+                    });
+            }
+            
+            function addTask() {
+                const task = taskInput.value.trim();
+                const dueTime = dueTimeInput.value;
+                
+                if (!task || !dueTime) {
+                    alert('Please enter both task and due time');
+                    return;
+                }
+                
+                fetch('/todos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ task, due_time: dueTime }),
+                })
+                .then(response => response.json())
+                .then(() => {
+                    taskInput.value = '';
+                    dueTimeInput.value = '';
+                    fetchTodos();
+                });
+            }
+            
+            function completeTask(e) {
+                const id = e.target.getAttribute('data-id');
+                
+                fetch(`/todos/${id}/complete`, {
+                    method: 'PUT',
+                })
+                .then(() => {
+                    fetchTodos();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

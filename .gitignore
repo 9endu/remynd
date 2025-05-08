@@ -1,0 +1,10 @@
+# Secrets
+.env
+*.env
+
+# Database
+*.db
+*.sqlite
+
+# Node
+node_modules/
